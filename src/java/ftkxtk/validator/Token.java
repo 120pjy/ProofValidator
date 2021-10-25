@@ -1,3 +1,5 @@
+package ftkxtk.validator;
+
 public final class Token {
 
     public enum Type {
