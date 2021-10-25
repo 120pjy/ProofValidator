@@ -1,5 +1,6 @@
 package ftkxtk.validator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class Lexer {
@@ -11,11 +12,25 @@ public final class Lexer {
     }
 
     public List<Token> lex() {
-        throw new UnsupportedOperationException(); //TODO
+        List<Token> tokens = new ArrayList<>();
+        while(chars.has(0)) {
+            if (match("[ \b\t]")) {
+                chars.skip();
+            } else {
+                tokens.add(lexToken());
+            }
+        }
+        return tokens;
     }
 
     public Token lexToken() {
-        throw new UnsupportedOperationException(); //TODO
+        if (match("\n") || match("\r", "\n"))
+            return lexLine();
+        else if(match("[A-Za-z_]"))
+            return lexIdentifier();
+        else if(match("[0-9]")||match("[+\\-]", "[0-9]"))
+            return lexNumber();
+        return lexOperator();
     }
 
     public Token lexIdentifier() {
@@ -26,8 +41,19 @@ public final class Lexer {
         throw new UnsupportedOperationException(); //TODO
     }
 
+    public Token lexLine() {
+        return chars.emit(Token.Type.Line);
+    }
+
     public Token lexOperator() {
-        throw new UnsupportedOperationException(); //TODO
+        if (match("\\\\")) {
+            if(!chars.has(0))
+                throw new ParseException("\\ cannot be used alone", chars.index);
+            while(peek("[^ \b\n\r\t\\\\]")) { chars.advance(); }
+        } else {
+            chars.advance();
+        }
+        return chars.emit(Token.Type.OPERATOR);
     }
 
     public boolean peek(String... patterns) {

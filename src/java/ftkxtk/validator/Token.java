@@ -5,7 +5,8 @@ public final class Token {
     public enum Type {
         IDENTIFIER,
         OPERATOR,
-        Number
+        Number,
+        Line
     }
 
     private final Type type;
