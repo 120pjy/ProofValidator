@@ -80,3 +80,5 @@ fabric.properties
 ProofValidator.iml
 /Proof Validator.iml
 /.idea/runConfigurations.xml
+
+.idea/modules.xml
