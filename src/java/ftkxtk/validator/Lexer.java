@@ -34,11 +34,19 @@ public final class Lexer {
     }
 
     public Token lexIdentifier() {
-        throw new UnsupportedOperationException(); //TODO
+        while(match("[\\w_]")) {}
+        return chars.emit(Token.Type.IDENTIFIER);
     }
 
     public Token lexNumber() {
-        throw new UnsupportedOperationException(); //TODO
+        boolean dot = false;
+        while(match("[\\d]") || match(".", "\\d")) {
+            if (dot && chars.get(-1)=='.') {
+                return chars.emit(Token.Type.Number);
+            }
+            if (chars.has(-2) && chars.get(-2)=='.') dot = true;
+        }
+        return chars.emit(Token.Type.Number);
     }
 
     public Token lexLine() {
@@ -66,8 +74,6 @@ public final class Lexer {
 
     public boolean match(String... patterns) {
         boolean peek = peek(patterns);
-        for (String str: patterns) {
-        }
         if(peek) {
             for (int i=0; i<patterns.length; i++) {
                 chars.advance();
