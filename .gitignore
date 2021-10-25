@@ -75,8 +75,8 @@ fabric.properties
 
 .idea/misc.xml
 
-.idea/modules.xml
-
 .idea/vcs.xml
 
 ProofValidator.iml
+/Proof Validator.iml
+/.idea/runConfigurations.xml
