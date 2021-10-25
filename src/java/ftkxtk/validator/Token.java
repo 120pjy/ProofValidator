@@ -1,4 +1,4 @@
-package ftkxtk.validator;
+package java.ftkxtk.validator;
 
 public final class Token {
 
