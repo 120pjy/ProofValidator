@@ -2,10 +2,6 @@ public final class Token {
 
     public enum Type {
         IDENTIFIER,
-        INTEGER,
-        DECIMAL,
-        CHARACTER,
-        STRING,
         OPERATOR
     }
 
