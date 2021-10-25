@@ -31,11 +31,23 @@ public final class Lexer {
     }
 
     public boolean peek(String... patterns) {
-        throw new UnsupportedOperationException(); //TODO (in Lecture)
+        for (int i=0; i<patterns.length; i++) {
+            if (!chars.has(i) || !String.valueOf(chars.get(i)).matches(patterns[i]))
+                return false;
+        }
+        return true;
     }
 
     public boolean match(String... patterns) {
-        throw new UnsupportedOperationException(); //TODO (in Lecture)
+        boolean peek = peek(patterns);
+        for (String str: patterns) {
+        }
+        if(peek) {
+            for (int i=0; i<patterns.length; i++) {
+                chars.advance();
+            }
+        }
+        return peek;
     }
     
     public static final class CharStream {
