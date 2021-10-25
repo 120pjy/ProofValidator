@@ -2,7 +2,8 @@ public final class Token {
 
     public enum Type {
         IDENTIFIER,
-        OPERATOR
+        OPERATOR,
+        Number
     }
 
     private final Type type;
