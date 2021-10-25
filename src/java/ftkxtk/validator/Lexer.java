@@ -1,4 +1,4 @@
-package java.ftkxtk.validator;
+package ftkxtk.validator;
 
 import java.util.List;
 
