@@ -1,6 +1,7 @@
 package ftkxtk.validator;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * The parser takes the sequence of tokens emitted by the lexer and turns that
@@ -27,55 +28,13 @@ public final class Parser {
      * Parses the {@code source} rule.
      */
     public Ast.Source parseSource() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    /**
-     * Parses the {@code field} rule. This method should only be called if the
-     * next tokens start a global, aka {@code LIST|VAL|VAR}.
-     */
-    public Ast.Global parseGlobal() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    /**
-     * Parses the {@code list} rule. This method should only be called if the
-     * next token declares a list, aka {@code LIST}.
-     */
-    public Ast.Global parseList() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    /**
-     * Parses the {@code mutable} rule. This method should only be called if the
-     * next token declares a mutable global variable, aka {@code VAR}.
-     */
-    public Ast.Global parseMutable() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    /**
-     * Parses the {@code immutable} rule. This method should only be called if the
-     * next token declares an immutable global variable, aka {@code VAL}.
-     */
-    public Ast.Global parseImmutable() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    /**
-     * Parses the {@code function} rule. This method should only be called if the
-     * next tokens start a method, aka {@code FUN}.
-     */
-    public Ast.Function parseFunction() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    /**
-     * Parses the {@code block} rule. This method should only be called if the
-     * preceding token indicates the opening a block.
-     */
-    public List<Ast.Statement> parseBlock() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        List<Ast.Statement> statements = new ArrayList<>();
+        while (tokens.has(0)) {
+            Ast.Statement stmt = parseStatement();
+            if (stmt == null) throw new ParseException("Can't parse statement", tokens.index);
+            statements.add(stmt);
+        }
+        return new Ast.Source(statements);
     }
 
     /**

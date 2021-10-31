@@ -211,9 +211,34 @@ public abstract class Ast {
                         ", right=" + right +
                         '}';
             }
-
         }
 
+        public static final class Not extends Ast.Expression {
+
+            Ast.Expression expr;
+
+            public Not(Expression expr) {
+                this.expr = expr;
+            }
+
+
+            public Ast.Expression getExpression() {
+                return expr;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof Not &&
+                        expr.equals(((Not)obj).expr);
+            }
+
+            @Override
+            public String toString() {
+                return "Ast.Expression.Binary{" +
+                        "expression="+expr+
+                        '}';
+            }
+        }
     }
 
     public class Reason extends Ast {
