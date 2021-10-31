@@ -1,4 +1,4 @@
-package plc.project;
+package ftkxtk.validator;
 
 import java.util.ArrayList;
 import java.util.List;
