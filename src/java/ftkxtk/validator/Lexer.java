@@ -14,7 +14,7 @@ public final class Lexer {
     public List<Token> lex() {
         List<Token> tokens = new ArrayList<>();
         while(chars.has(0)) {
-            if (match("[ \b\t]")) {
+            if (match("[ \n\r\b]")) {
                 chars.skip();
             } else {
                 tokens.add(lexToken());
@@ -24,8 +24,10 @@ public final class Lexer {
     }
 
     public Token lexToken() {
-        if (match("\n") || match("\r", "\n"))
+        if (match("#", "[0-9]"))
             return lexLine();
+        else if (match("\t"))
+            return lexReason();
         else if(match("[A-Za-z_]"))
             return lexIdentifier();
         else if(match("[0-9]")||match("[+\\-]", "[0-9]"))
@@ -50,8 +52,14 @@ public final class Lexer {
     }
 
     public Token lexLine() {
+        while(match("[0-9]")) {}
         return chars.emit(Token.Type.Line);
     }
+
+    public Token lexReason() {
+        return chars.emit(Token.Type.Reason);
+    }
+
 
     public Token lexOperator() {
         if (match("\\\\")) {
@@ -115,19 +123,5 @@ public final class Lexer {
             return new Token(type, input.substring(start, index), start);
         }
 
-    }
-
-    public static void main(String[] args) {
-        String input = """
-                1. ~p\\-> q given
-                2. ~q given
-                3. ~q->p Contrapositive(1)
-                4. p modus ponens(2,3)
-                """;
-        Lexer lexer = new Lexer(input);
-        List<Token> list = lexer.lex();
-        for (Token t: list) {
-            System.out.println("Type: "+t.getType()+"\tLiteral: "+t.getLiteral()+"\tindex: "+t.getIndex());
-        }
     }
 }
