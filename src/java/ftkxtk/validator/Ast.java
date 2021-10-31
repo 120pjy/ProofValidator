@@ -173,23 +173,17 @@ public abstract class Ast {
 
         public static final class Binary extends Ast.Expression {
 
-            public enum operator {
-                implies,
-                iff,
-                equals
-            }
-
-            private final operator operator;
+            private final String operator;
             private final Ast.Expression left;
             private final Ast.Expression right;
 
-            public Binary(operator operator, Ast.Expression left, Ast.Expression right) {
+            public Binary(String operator, Ast.Expression left, Ast.Expression right) {
                 this.operator = operator;
                 this.left = left;
                 this.right = right;
             }
 
-            public operator getOperator() {
+            public String getOperator() {
                 return operator;
             }
 
