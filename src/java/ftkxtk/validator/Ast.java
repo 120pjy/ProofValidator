@@ -1,4 +1,4 @@
-package plc.project;
+package ftkxtk.validator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -221,68 +221,18 @@ public abstract class Ast {
 
         }
 
-        public static final class Function extends Ast.Expression {
-
-            private final String name;
-            private final List<Ast.Expression> arguments;
-
-            public Function(String name, List<Ast.Expression> arguments) {
-                this.name = name;
-                this.arguments = arguments;
-            }
-
-            public String getName() {
-                return name;
-            }
-
-            public List<Ast.Expression> getArguments() {
-                return arguments;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                return obj instanceof Ast.Expression.Function &&
-                        name.equals(((Ast.Expression.Function) obj).name) &&
-                        arguments.equals(((Ast.Expression.Function) obj).arguments);
-            }
-
-            @Override
-            public String toString() {
-                return "Ast.Expression.Function{" +
-                        ", name='" + name + '\'' +
-                        ", arguments=" + arguments +
-                        '}';
-            }
-
-        }
-
-        public static final class PlcList extends Ast.Expression {
-
-            private final List<Ast.Expression> values;
-
-            public PlcList(List<Ast.Expression> values) {
-                this.values = values;
-            }
-
-            public List<Ast.Expression> getValues() {
-                return values;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                return obj instanceof Ast.Expression.PlcList &&
-                        values.equals(((Ast.Expression.PlcList) obj).values);
-            }
-
-            @Override
-            public String toString() {
-                return "Ast.Expression.PlcList{" +
-                        ", values=[" + values + "]" +
-                        '}';
-            }
-
-        }
-
     }
 
+    public class Reason extends Ast {
+        private String reason;
+        private List<Integer> lines;
+
+        public Reason(String reason, List<Integer> lines) {
+            this.reason = reason;
+            this.lines = lines;
+        }
+
+        public String getReason() {return reason;}
+        public List<Integer> getLines() {return lines;}
+    }
 }
