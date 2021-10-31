@@ -117,4 +117,17 @@ public final class Lexer {
 
     }
 
+    public static void main(String[] args) {
+        String input = """
+                1. ~p\\-> q given
+                2. ~q given
+                3. ~q->p Contrapositive(1)
+                4. p modus ponens(2,3)
+                """;
+        Lexer lexer = new Lexer(input);
+        List<Token> list = lexer.lex();
+        for (Token t: list) {
+            System.out.println("Type: "+t.getType()+"\tLiteral: "+t.getLiteral()+"\tindex: "+t.getIndex());
+        }
+    }
 }
