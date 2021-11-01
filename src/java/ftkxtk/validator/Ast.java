@@ -241,7 +241,7 @@ public abstract class Ast {
         }
     }
 
-    public class Reason extends Ast {
+    public static final class Reason extends Ast {
         private String reason;
         private List<Integer> lines;
 
