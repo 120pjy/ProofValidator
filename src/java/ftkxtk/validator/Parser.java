@@ -70,19 +70,29 @@ public final class Parser {
     public Ast.Expression parsePrimaryExpression() throws ParseException {
         if(match("true") || match("false")) {
             return new Ast.Expression.Literal(Boolean.valueOf(tokens.get(-1).getLiteral()));
+        } else if(match(Token.Type.IDENTIFIER)) {
+            return new Ast.Expression.Variable(tokens.get(-1).getLiteral());
         } else if (match(Token.Type.Number)) {
             return new Ast.Expression.Literal(new BigDecimal(tokens.get(-1).getLiteral()));
         } else if (match("\\not")) {
-            return new Ast.Expression.Not(parseExpression());
+            return parseNot();
         } else if (match("(")){
-            Ast.Expression expr = parseExpression();
-            if (!match(")")) {
-                throw new ParseException(") expected.", tokens.index);
-            }
-            return new Ast.Expression.Group(expr);
+            return parseGroup();
         } else {
             throw new ParseException("Invalid expression.", tokens.index);
         }
+    }
+
+    private Ast.Expression.Group parseGroup() throws ParseException {
+        Ast.Expression expr = parseExpression();
+        if (!match(")")) {
+            throw new ParseException(") expected.", tokens.index);
+        }
+        return new Ast.Expression.Group(expr);
+    }
+
+    private Ast.Expression parseNot() throws ParseException {
+        return new Ast.Expression.Not(parsePrimaryExpression());
     }
 
     public Ast.Reason parseReason() throws ParseException {

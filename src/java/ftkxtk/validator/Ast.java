@@ -1,6 +1,5 @@
 package ftkxtk.validator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -144,6 +143,45 @@ public abstract class Ast {
 
         }
 
+        public static final class Variable extends Ast.Expression {
+
+            private final String name;
+            private boolean value;
+
+            public Variable(String name, boolean value) {
+                this.name = name; this.value = value;
+            }
+
+            public Variable(String name) {
+                this.name = name; this.value = false;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public boolean getValue() {
+                return value;
+            }
+
+            public void setValue(boolean value) { this.value = value;}
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof Variable &&
+                        Objects.equals(name, ((Variable) obj).name) && Objects.equals(value, ((Variable) obj).value);
+            }
+
+            @Override
+            public String toString() {
+                return "Ast.Expression.Variable{" +
+                        "name=" + name +
+                        "value=" + value +
+                        '}';
+            }
+
+        }
+
         public static final class Group extends Ast.Expression {
 
             private final Ast.Expression expression;
@@ -234,7 +272,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Ast.Expression.Binary{" +
+                return "Ast.Expression.Not{" +
                         "expression="+expr+
                         '}';
             }
