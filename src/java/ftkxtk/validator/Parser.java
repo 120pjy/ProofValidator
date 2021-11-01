@@ -1,7 +1,8 @@
 package ftkxtk.validator;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.ArrayList;
 
 import static ftkxtk.validator.Token.Type.Line;
 
@@ -42,20 +43,72 @@ public final class Parser {
         return new Ast.Statement.Expression(line, reason, expr);
     }
 
+    public Ast.Expression parseExpression() throws ParseException {
+        return parseImplicationExpression();
+    }
+
     public Ast.Expression parseImplicationExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        Ast.Expression expr = parseLogicalExpression();
+        while (match("\\implies") || match("\\iff") || match("=")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expression right = parseLogicalExpression();
+            expr = new Ast.Expression.Binary(operator, expr, right);
+        }
+        return expr;
     }
 
     public Ast.Expression parseLogicalExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        Ast.Expression expr = parsePrimaryExpression();
+        while (match("\\and") || match("\\or")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expression right = parsePrimaryExpression();
+            expr = new Ast.Expression.Binary(operator, expr, right);
+        }
+        return expr;
     }
 
     public Ast.Expression parsePrimaryExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        if(match("true") || match("false")) {
+            return new Ast.Expression.Literal(Boolean.valueOf(tokens.get(-1).getLiteral()));
+        } else if (match(Token.Type.Number)) {
+            return new Ast.Expression.Literal(new BigDecimal(tokens.get(-1).getLiteral()));
+        } else if (match("\\not")) {
+            return new Ast.Expression.Not(parseExpression());
+        } else if (match("(")){
+            Ast.Expression expr = parseExpression();
+            if (!match(")")) {
+                throw new ParseException(") expected.", tokens.index);
+            }
+            return new Ast.Expression.Group(expr);
+        } else {
+            throw new ParseException("Invalid expression.", tokens.index);
+        }
     }
 
     public Ast.Reason parseReason() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        if(!match(Token.Type.Reason))
+            throw new ParseException("reason indicator (\\t) expected.", tokens.index);
+        if(!match(Token.Type.IDENTIFIER))
+            throw new ParseException("at least one identifier expected.", tokens.index);
+        StringBuilder reason = new StringBuilder(tokens.get(-1).getLiteral());
+        while(match(Token.Type.IDENTIFIER)) {
+            reason.append(" ").append(tokens.get(-1).getLiteral());
+        }
+        List<Integer> lines = new ArrayList<>();
+        if(match("(")) {
+            while (!match(")")) {
+                if (!match(Token.Type.Number)) {
+                    throw new ParseException(") expected.", tokens.index);
+                }
+                lines.add(Integer.parseInt(tokens.get(-1).getLiteral()));
+                if (!match(",") && !peek(")")) {
+                    throw new ParseException(", expected.", tokens.index);
+                }
+            }
+        }
+
+        return new Ast.Reason(reason.toString(), lines);
+
     }
 
     private boolean peek(Object... patterns) {
