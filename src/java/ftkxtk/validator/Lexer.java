@@ -3,6 +3,7 @@ package ftkxtk.validator;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("StatementWithEmptyBody")
 public final class Lexer {
 
     private final CharStream chars;

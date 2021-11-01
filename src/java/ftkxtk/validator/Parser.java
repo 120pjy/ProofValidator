@@ -1,11 +1,15 @@
 package ftkxtk.validator;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
+import static ftkxtk.validator.Token.Type.Line;
 
 public final class Parser {
 
     private final TokenStream tokens;
+
+    private int line;
 
     public Parser(List<Token> tokens) {
         this.tokens = new TokenStream(tokens);
@@ -27,15 +31,15 @@ public final class Parser {
      * statement, then it is an expression/assignment statement.
      */
     public Ast.Statement parseStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    public Ast.Statement.Declaration parseDeclarationStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+         return parseExpressionStatement();
     }
 
     public Ast.Statement.Expression parseExpressionStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        if (!match(Line)) throw new ParseException("No Line number", tokens.index);
+        line = Integer.parseInt(tokens.get(-1).getLiteral().substring(1));
+        Ast.Expression expr = parseImplicationExpression();
+        Ast.Reason reason = parseReason();
+        return new Ast.Statement.Expression(line, reason, expr);
     }
 
     public Ast.Expression parseImplicationExpression() throws ParseException {
