@@ -14,7 +14,7 @@ Line(#1) Identifier(Let) Identifier(a) Operator(=) Identifier(b) Reason(\t) Iden
 
 public class Main {
     public static void main(String[] args) {
-        String input = getModusPonens();
+        String input = getDoubleNegation();
         Lexer lexer = new Lexer(input);
         Parser parser = new Parser(lexer.lex());
         Analyzer analyzer = new Analyzer(parser.parseSource());
@@ -93,6 +93,20 @@ public class Main {
                 #5 (p \\implies q) \t given
                 #7 (p \\implies q) \\implies r \t given
                 #10 r \t modus ponens(5, 7)
+                """;
+    }
+
+    public static String getContraPositive() {
+        return """
+                #5 p \\implies q \t given
+                #10 \\not q \\implies \\not p \t contrapositive(5)
+                """;
+    }
+
+    public static String getDoubleNegation() {
+        return """
+                #5 \\not \\not p \\implies p \t double negation
+                #10 q \\implies \\not \\not q \t double negation
                 """;
     }
 }
