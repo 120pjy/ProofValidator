@@ -20,6 +20,7 @@ public class Environment {
             if(args.size() != 1)
                 throw new IllegalArgumentException("no line needed");
             Ast.Statement currentStatement = args.get(0);
+            System.out.println(currentStatement);
             if (!(currentStatement instanceof Ast.Statement.Expression && ((Ast.Statement.Expression) currentStatement).getExpression() instanceof Ast.Expression.Binary currentExpression))
                 throw new RuntimeException("current statement not a binary expression");
             if(!(currentExpression.getOperator().equals("\\implies")) && !currentExpression.getOperator().equals("\\iff"))
@@ -31,8 +32,43 @@ public class Environment {
             throw new RuntimeException("No double negation for you");
         });
         registerLogic("contrapositive", args->{
-            if(args.size() != 2)
-                throw new IllegalArgumentException("only one line needed");
+            if(args.size() != 2 && args.size() != 1)
+                throw new IllegalArgumentException("only one or two line needed");
+
+            if (args.size() == 1) {
+                Ast.Statement currentStatement = args.get(0);
+
+                if (!(currentStatement instanceof Ast.Statement.Expression))
+                    throw new RuntimeException("current statement not an expression");
+
+                Ast.Expression currentExpression = ((Ast.Statement.Expression)currentStatement).getExpression();
+                if(!(currentExpression instanceof Ast.Expression.Binary ))
+                    throw new RuntimeException("current statement not an imply expression");
+
+                Ast.Expression left = ((Ast.Expression.Binary)currentExpression).getLeft();
+                Ast.Expression right = ((Ast.Expression.Binary)currentExpression).getRight();
+
+                if (! (left instanceof Ast.Expression.Binary && right instanceof Ast.Expression.Binary))
+                    throw new RuntimeException("All side of expression must be a binary expression");
+
+                Ast.Expression.Binary bleft = (Ast.Expression.Binary) left;
+                Ast.Expression.Binary bright = (Ast.Expression.Binary) right;
+
+                Ast.Expression leftleft = bleft.getLeft();
+                Ast.Expression leftright = bleft.getRight();
+                Ast.Expression rightleft = bright.getLeft();
+                Ast.Expression rightright = bright.getRight();
+
+                if (rightleft instanceof Ast.Expression.Not && rightright instanceof Ast.Expression.Not) {
+                    if (leftleft.equals(((Ast.Expression.Not)rightright).getExpression()) &&
+                            leftright.equals(((Ast.Expression.Not)rightleft).getExpression()))
+                        return;
+                }
+                throw new RuntimeException("no contra-positive for you");
+            }
+
+
+            // two arguments
             Ast.Statement currentStatement = args.get(0);
             Ast.Statement refStatement = args.get(1);
 

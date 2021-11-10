@@ -14,7 +14,7 @@ Line(#1) Identifier(Let) Identifier(a) Operator(=) Identifier(b) Reason(\t) Iden
 
 public class Main {
     public static void main(String[] args) {
-        String input = getHypotheticalSyllogism();
+        String input = getFirstExample();
         Lexer lexer = new Lexer(input);
         Parser parser = new Parser(lexer.lex());
         Analyzer analyzer = new Analyzer(parser.parseSource());
@@ -80,8 +80,8 @@ public class Main {
          */
         return """
                 #1 p \\implies (\\not q \\implies p) \t given
-                #2 (\\not q \\implies p) \\implies (\\not p \\implies \\not \\not q) \t Contrapositive (1)
-                #3 p \\implies (\\not p \\implies \\not \\not q) \t hypothetical syllogism (1, 3)
+                #2 (\\not q \\implies p) \\implies (\\not p \\implies \\not \\not q) \t Contrapositive
+                #3 p \\implies (\\not p \\implies \\not \\not q) \t hypothetical syllogism (1, 2)
                 #4 \\not \\not q \\implies q \t double negation
                 #5 (\\not \\not q \\implies q) \\implies ((\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q)) \t Hypothetical syllogism (2, 4)
                 #6 (\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q) \t modus ponens(4, 5)
