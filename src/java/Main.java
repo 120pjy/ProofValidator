@@ -100,6 +100,18 @@ public class Main {
                 #5 q \\implies r \t given
                 #6 p \\implies q \t given
                 #7 p \\implies r \t hypothetical syllogism(5, 6)
+          
+    public static String getContraPositive() {
+        return """
+                #5 p \\implies q \t given
+                #10 \\not q \\implies \\not p \t contrapositive(5)
+                """;
+    }
+
+    public static String getDoubleNegation() {
+        return """
+                #5 \\not \\not p \\implies p \t double negation
+                #10 q \\implies \\not \\not q \t double negation
                 """;
     }
 }
