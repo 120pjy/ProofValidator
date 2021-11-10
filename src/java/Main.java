@@ -14,7 +14,7 @@ Line(#1) Identifier(Let) Identifier(a) Operator(=) Identifier(b) Reason(\t) Iden
 
 public class Main {
     public static void main(String[] args) {
-        String input = getDoubleNegation();
+        String input = getHypotheticalSyllogism();
         Lexer lexer = new Lexer(input);
         Parser parser = new Parser(lexer.lex());
         Analyzer analyzer = new Analyzer(parser.parseSource());
@@ -95,7 +95,12 @@ public class Main {
                 #10 r \t modus ponens(5, 7)
                 """;
     }
-
+    public static String getHypotheticalSyllogism() {
+        return """
+                #5 q \\implies r \t given
+                #6 p \\implies q \t given
+                #7 p \\implies r \t hypothetical syllogism(5, 6)
+          
     public static String getContraPositive() {
         return """
                 #5 p \\implies q \t given
