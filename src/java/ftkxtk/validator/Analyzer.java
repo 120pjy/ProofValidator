@@ -15,7 +15,7 @@ public class Analyzer {
     public void analyze() {
         lines.forEach((line, stmt)->{
             Ast.Reason reason = stmt.getReason();
-            String reasonName = reason.getReason();
+            String reasonName = reason.getReason().toLowerCase();
             List<Integer> reasonArgs = reason.getLines();
             List<Ast.Statement> reasonLines = new ArrayList<>();
             reasonLines.add(stmt);
@@ -24,5 +24,7 @@ public class Analyzer {
             }
             Environment.LOGICS.get(reasonName).accept(reasonLines);
         });
+
+        System.out.println("All Logic is valid");
     }
 }

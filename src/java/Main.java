@@ -14,10 +14,11 @@ Line(#1) Identifier(Let) Identifier(a) Operator(=) Identifier(b) Reason(\t) Iden
 
 public class Main {
     public static void main(String[] args) {
-        String first = getFirstExample();
-        Lexer lexer = new Lexer(first);
+        String input = getModusPonens();
+        Lexer lexer = new Lexer(input);
         Parser parser = new Parser(lexer.lex());
-        printAst(parser.parseSource(), 0);
+        Analyzer analyzer = new Analyzer(parser.parseSource());
+        analyzer.analyze();
 
     }
 
@@ -68,6 +69,15 @@ public class Main {
     }
 
     private static String getFirstExample() {
+        /* Reasons are
+            1. Given
+            2. Contrapositive
+            3. Hypothetical syllogism - 1
+            4. Hypothetical  syllogism - 2
+            5. Double negation
+            6. Modus ponens
+
+         */
         return """
                 #1 p \\implies (\\not q \\implies p) \t given
                 #2 (\\not q \\implies p) \\implies (\\not p \\implies \\not \\not q) \t Contrapositive (1)
@@ -76,6 +86,14 @@ public class Main {
                 #5 (\\not \\not q \\implies q) \\implies ((\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q)) \t Hypothetical syllogism (2, 4)
                 #6 (\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q) \t modus ponens(4, 5)
                 #7 p \\implies (\\not p \\implies q) \t hypothetical syllogism (3, 6)""";
+    }
+
+    public static String getModusPonens() {
+        return """
+                #5 (p \\implies q) \t given
+                #7 (p \\implies q) \\implies r \t given
+                #10 r \t modus ponens(5, 7)
+                """;
     }
 }
 
