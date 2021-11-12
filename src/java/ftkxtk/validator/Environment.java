@@ -48,11 +48,8 @@ public class Environment {
                 Ast.Expression left = ((Ast.Expression.Binary)currentExpression).getLeft();
                 Ast.Expression right = ((Ast.Expression.Binary)currentExpression).getRight();
 
-                if (! (left instanceof Ast.Expression.Binary && right instanceof Ast.Expression.Binary))
+                if (! (left instanceof Ast.Expression.Binary bleft && right instanceof Ast.Expression.Binary bright))
                     throw new RuntimeException("All side of expression must be a binary expression");
-
-                Ast.Expression.Binary bleft = (Ast.Expression.Binary) left;
-                Ast.Expression.Binary bright = (Ast.Expression.Binary) right;
 
                 Ast.Expression leftleft = bleft.getLeft();
                 Ast.Expression leftright = bleft.getRight();
@@ -131,8 +128,10 @@ public class Environment {
         });
 
         registerLogic("hypothetical syllogism", args -> {
-            if (args.size() != 3) throw new RuntimeException("Hypothetical syllogism must have 2 reasons");
+            if (args.size() != 3 && args.size() !=1) throw new RuntimeException("Hypothetical syllogism must have 2 reasons");
 
+
+            // 3 arguments problem
             for (Ast.Statement stmt: args)
                 if (!(stmt instanceof Ast.Statement.Expression && ((Ast.Statement.Expression)stmt).getExpression() instanceof Ast.Expression.Binary && ((Ast.Expression.Binary) ((Ast.Statement.Expression)stmt).getExpression()).getOperator().equals("\\implies"))) throw new RuntimeException("All statements must be an implication expression statement");
 

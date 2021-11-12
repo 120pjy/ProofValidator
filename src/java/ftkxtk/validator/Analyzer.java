@@ -9,7 +9,10 @@ public class Analyzer {
     public Analyzer(Ast.Source src) {
         lines = new HashMap<>();
         for(Ast.Statement stmt : src.getStatements()) {
-            lines.put(stmt.getLine(), stmt);
+            if(stmt instanceof Ast.Statement.Expression)
+                lines.put(stmt.getLine(), removeGroup((Ast.Statement.Expression) stmt));
+            else
+                lines.put(stmt.getLine(), (stmt));
         }
     }
 
@@ -43,6 +46,7 @@ public class Analyzer {
             for(Integer i : reasonArgs) {
                 reasonLines.add(lines.get(i));
             }
+            System.out.println(line);
             Environment.LOGICS.get(reasonName).accept(reasonLines);
         });
 

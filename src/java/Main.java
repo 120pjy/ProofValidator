@@ -83,7 +83,7 @@ public class Main {
                 #2 (\\not q \\implies p) \\implies (\\not p \\implies \\not \\not q) \t Contrapositive
                 #3 p \\implies (\\not p \\implies \\not \\not q) \t hypothetical syllogism (1, 2)
                 #4 \\not \\not q \\implies q \t double negation
-                #5 (\\not \\not q \\implies q) \\implies ((\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q)) \t Hypothetical syllogism (2, 4)
+                #5 (\\not \\not q \\implies q) \\implies ((\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q)) \t Hypothetical syllogism
                 #6 (\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q) \t modus ponens(4, 5)
                 #7 p \\implies (\\not p \\implies q) \t hypothetical syllogism (3, 6)""";
     }
