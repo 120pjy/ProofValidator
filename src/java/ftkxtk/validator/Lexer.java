@@ -25,11 +25,7 @@ public final class Lexer {
     }
 
     public Token lexToken() {
-        if (match("#", "[0-9]"))
-            return lexLine();
-        else if (match("\t"))
-            return lexReason();
-        else if(match("[A-Za-z_]"))
+        if(match("[A-Za-z_]"))
             return lexIdentifier();
         else if(match("[0-9]")||match("[+\\-]", "[0-9]"))
             return lexNumber();
@@ -51,16 +47,6 @@ public final class Lexer {
         }
         return chars.emit(Token.Type.Number);
     }
-
-    public Token lexLine() {
-        while(match("[0-9]")) {}
-        return chars.emit(Token.Type.Line);
-    }
-
-    public Token lexReason() {
-        return chars.emit(Token.Type.Reason);
-    }
-
 
     public Token lexOperator() {
         if (match("\\\\")) {
