@@ -1,4 +1,6 @@
 import ftkxtk.validator.*;
+
+import java.util.List;
 /*
 #1 Let a = b    Modus Ponens (1, 2)
 #2 Let b = c    Reason (1, 2)
@@ -14,12 +16,35 @@ Line(#1) Identifier(Let) Identifier(a) Operator(=) Identifier(b) Reason(\t) Iden
 
 public class Main {
     public static void main(String[] args) {
-        String input = getHypotheticalSyllogism();
+        String input = """
+                (A1) p \\implies (\\not q \\implies p)
+                
+                [modus ponens] ((p \\implies q) \\and p) \\infer q
+                [hypothetical syllogism] ((p \\implies q) \\and (q \\implies r)) \\infer (p \\implies r)
+                
+                (HS1) ( q \\implies r) \\implies ((p \\implies q) \\implies (p \\implies r))
+                (DN1) \\not \\not p \\implies p
+                (TR1) (p \\implies q) \\implies (\\not q \\implies \\not p)
+                
+                #1 p \\implies (\\not q \\implies p) \t A1
+                #2 (\\not q \\implies p) \\implies (\\not p \\implies \\not \\not q) \t TR1
+                #3 p \\implies ( \\not p \\implies \\not \\not q) \t hypothetical syllogism (1, 2)
+                #4 \\not \\not q \\implies q \t DN1
+                #5 (\\not \\not q \\implies q) \\implies ((\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q)) \t HS1
+                #6 (\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q) \t modus ponens (5, 4)
+                #7 p \\implies ( \\not p \\implies q) \t hypothetical syllogism (3, 6)
+                """;
         Lexer lexer = new Lexer(input);
-        Parser parser = new Parser(lexer.lex());
-        Analyzer analyzer = new Analyzer(parser.parseSource());
-        analyzer.analyze();
+        List<Token> tokens = lexer.lex();
+        Parser parser = new Parser(tokens);
+        Ast.Source ast = parser.parseSource();
+        Analyzer analyzer = new Analyzer();
+        analyzer.visit(ast);
 
+    }
+
+    private static void printAst(Ast root) {
+        printAst(root, 0);
     }
 
     private static void printAst(Ast root, int indent) {
@@ -31,12 +56,16 @@ public class Main {
             for(var ast : ((Ast.Source) root).getStatements()) {
                 printAst(ast, indent + 1);
             }
+        } else if(root instanceof Ast.Statement.Lemma) {
+            System.out.println("Lemma Statement - " + ((Ast.Statement.Lemma)root).getName());
+            printAst(((Ast.Statement.Lemma)root).getExpression(), indent + 1);
         } else if(root instanceof Ast.Statement.Expression) {
             System.out.println("Expression Statement - " + ((Ast.Statement.Expression)root).getLine());
             printAst(((Ast.Statement.Expression)root).getExpression(), indent + 1);
             printAst(((Ast.Statement.Expression)root).getReason(), indent + 1);
         } else if(root instanceof Ast.Expression.Binary) {
-            System.out.println("Binary(" + ((Ast.Expression.Binary)root).getOperator() + ")");
+//            System.out.println("Binary(" + ((Ast.Expression.Binary)root).getOperator() + ")");
+            System.out.println(((Ast.Expression.Binary)root).getOperator());
             printAst(((Ast.Expression.Binary)root).getLeft(), indent + 1);
             printAst(((Ast.Expression.Binary)root).getRight(), indent + 1);
         } else if(root instanceof Ast.Expression.Literal) {
@@ -45,7 +74,8 @@ public class Main {
             System.out.println("Not");
             printAst(((Ast.Expression.Not)root).getExpression(), indent + 1);
         }  else if(root instanceof Ast.Expression.Variable) {
-            System.out.println("Variable(" + ((Ast.Expression.Variable)root).getName() +", " + ((Ast.Expression.Variable)root).getValue() +")");
+//            System.out.println("Var(" + ((Ast.Expression.Variable)root).getName() +", " + ((Ast.Expression.Variable)root).getValue() +")");
+            System.out.println("Var(" + ((Ast.Expression.Variable)root).getName() +")");
         } else if(root instanceof Ast.Expression.Group) {
             System.out.println("Group");
             printAst(((Ast.Expression.Group)root).getExpression(), indent + 1);
@@ -81,11 +111,23 @@ public class Main {
         return """
                 #1 p \\implies (\\not q \\implies p) \t given
                 #2 (\\not q \\implies p) \\implies (\\not p \\implies \\not \\not q) \t Contrapositive (1)
-                #3 p \\implies (\\not p \\implies \\not \\not q) \t hypothetical syllogism (1, 3)
+                #3 p \\implies (\\not p \\implies \\not \\not q) \t hypothetical syllogism (1, 2)
                 #4 \\not \\not q \\implies q \t double negation
-                #5 (\\not \\not q \\implies q) \\implies ((\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q)) \t Hypothetical syllogism (2, 4)
+                #5 (\\not \\not q \\implies q) \\implies ((\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q)) \t Hypothetical syllogism
                 #6 (\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q) \t modus ponens(4, 5)
                 #7 p \\implies (\\not p \\implies q) \t hypothetical syllogism (3, 6)""";
+    }
+
+    public static String getSecondExample() {
+        return """
+                [modus ponens] ((p \\implies q) \\and p) \\infer q
+                [hypothetical syllogism] ((p \\implies q) \\and (q \\implies r)) \\infer (p \\implies r)
+                (HS) ( p \\implies q) \\implies ((q \\implies r) \\implies (p \\implies r))
+                #1 ((p \\implies q) \\implies (q \\implies r)) \\implies (((q \\implies r) \\implies r) \\implies ((p \\implies q) \\implies r))\t HS
+                #2 p \\implies q\tgiven
+                #3 p\tgiven
+                #4 q\tmodusponens (2, 3)
+                """;
     }
 
     public static String getModusPonens() {
@@ -95,6 +137,7 @@ public class Main {
                 #10 r \t modus ponens(5, 7)
                 """;
     }
+
     public static String getHypotheticalSyllogism() {
         return """
                 #5 q \\implies r \t given
