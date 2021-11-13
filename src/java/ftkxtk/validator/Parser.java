@@ -4,13 +4,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.ArrayList;
 
+import static ftkxtk.validator.Token.Type.IDENTIFIER;
 import static ftkxtk.validator.Token.Type.Line;
 
 public final class Parser {
 
     private final TokenStream tokens;
-
-    private int line;
 
     public Parser(List<Token> tokens) {
         this.tokens = new TokenStream(tokens);
@@ -32,12 +31,42 @@ public final class Parser {
      * statement, then it is an expression/assignment statement.
      */
     public Ast.Statement parseStatement() throws ParseException {
-         return parseExpressionStatement();
+        if(peek("("))
+            return parseLemmaStatement();
+        else if(peek("["))
+            return parseTransformationStatement();
+        return parseExpressionStatement();
+    }
+
+    public Ast.Statement.Lemma parseLemmaStatement() throws ParseException {
+        if (!match("(")) throw new ParseException("No (", tokens.index);
+        if(!match(IDENTIFIER)) throw new ParseException("No name", tokens.index);
+        String name = tokens.get(-1).getLiteral();
+        if (!match(")")) throw new ParseException("No )", tokens.index);
+        Ast.Expression expr = parseImplicationExpression();
+        return new Ast.Statement.Lemma(name.toLowerCase(), expr);
+    }
+
+    public Ast.Statement.Transformation parseTransformationStatement() throws ParseException {
+        if (!match("[")) throw new ParseException("No [", tokens.index);
+        StringBuilder name = new StringBuilder();
+        if(!peek(IDENTIFIER))
+            throw new ParseException("No name", tokens.index);
+        while(match(IDENTIFIER)) {
+            name.append(tokens.get(-1).getLiteral());
+        }
+        if (!match("]")) throw new ParseException("No ]", tokens.index);
+        Ast.Expression expr = parseImplicationExpression();
+
+        if (!match("\\infer")) throw new ParseException("No \\infer", tokens.index);
+        Ast.Expression inference = parseImplicationExpression();
+
+        return new Ast.Statement.Transformation(name.toString().toLowerCase(), expr, inference);
     }
 
     public Ast.Statement.Expression parseExpressionStatement() throws ParseException {
-        if (!match(Line)) throw new ParseException("No Line number", tokens.index);
-        line = Integer.parseInt(tokens.get(-1).getLiteral().substring(1));
+        if (!match("#", Token.Type.Number)) throw new ParseException("No Line number", tokens.index);
+        int line = Integer.parseInt(tokens.get(-1).getLiteral());
         Ast.Expression expr = parseImplicationExpression();
         Ast.Reason reason = parseReason();
         return new Ast.Statement.Expression(line, reason, expr);
@@ -83,12 +112,12 @@ public final class Parser {
         }
     }
 
-    private Ast.Expression.Group parseGroup() throws ParseException {
+    private Ast.Expression parseGroup() throws ParseException {
         Ast.Expression expr = parseExpression();
         if (!match(")")) {
             throw new ParseException(") expected.", tokens.index);
         }
-        return new Ast.Expression.Group(expr);
+        return expr;
     }
 
     private Ast.Expression parseNot() throws ParseException {
@@ -96,7 +125,7 @@ public final class Parser {
     }
 
     public Ast.Reason parseReason() throws ParseException {
-        if(!match(Token.Type.Reason))
+        if(!match("\t"))
             throw new ParseException("reason indicator (\\t) expected.", tokens.index);
         if(!match(Token.Type.IDENTIFIER))
             throw new ParseException("at least one identifier expected.", tokens.index);

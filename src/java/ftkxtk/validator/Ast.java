@@ -2,6 +2,7 @@ package ftkxtk.validator;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * See the Parser assignment specification for specific notes on each AST class
@@ -29,7 +30,7 @@ public abstract class Ast {
 
         @Override
         public String toString() {
-            return "Ast.Source{" +
+            return "Source{" +
                     "statements="+statements+
                     '}';
         }
@@ -38,23 +39,20 @@ public abstract class Ast {
 
 
     public static abstract class Statement extends Ast {
-        private final int line;
-        private final Ast.Reason reason;
-
-        protected Statement(int line, Ast.Reason reason) {
-            this.line = line;
-            this.reason = reason;
-        }
-        public int getLine() {return line;}
-        public Ast.Reason getReason() {return reason;}
 
         public static final class Expression extends Statement {
+            private final int line;
+            private final Ast.Reason reason;
             private final Ast.Expression expression;
 
             public Expression(int line, Ast.Reason reason, Ast.Expression expression) {
-                super(line, reason);
+                this.line = line;
+                this.reason = reason;
                 this.expression = expression;
             }
+
+            public int getLine() {return line;}
+            public Ast.Reason getReason() {return reason;}
 
             public Ast.Expression getExpression() {
                 return expression;
@@ -63,55 +61,128 @@ public abstract class Ast {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof Ast.Statement.Expression &&
+                        line == ((Ast.Statement.Expression) obj).line &&
+                        reason.equals(((Ast.Statement.Expression) obj).reason) &&
                         expression.equals(((Ast.Statement.Expression) obj).expression);
             }
 
             @Override
             public String toString() {
-                return "Ast.Statement.Expression{" +
+                return "Statement.Expression{" +
+                        "line=" + line +
+                        "reason=" + reason +
                         "expression=" + expression +
                         '}';
             }
 
         }
 
-        public static final class Declaration extends Statement {
-            private String name;
-            private String value;
+        public static final class Lemma extends Statement {
+            private final String name;
+            private final Ast.Expression expression;
 
-            public Declaration(int line, Ast.Reason reason, String name, String value) {
-                super(line, reason);
+            private List<Ast.Expression> structure;
+
+
+            public Lemma(String name, Ast.Expression expression) {
+                super();
                 this.name = name;
-                this.value = value;
+                this.expression = expression;
+            }
+
+            public void setStructure(List<Ast.Expression> structure) {
+                this.structure = structure;
             }
 
             public String getName() {
                 return name;
             }
 
-            public String getValue() {
-                return value;
+            public Ast.Expression getExpression() {
+                return expression;
+            }
+
+            public List<Ast.Expression> getStructure() {
+                return structure;
             }
 
             @Override
             public boolean equals(Object obj) {
-                return obj instanceof Declaration &&
-                        name.equals(((Declaration) obj).name) &&
-                        value.equals(((Declaration) obj).value);
+                return obj instanceof Ast.Statement.Lemma &&
+                        name.equals(((Ast.Statement.Lemma) obj).name) &&
+                        expression.equals(((Ast.Statement.Lemma) obj).expression);
             }
 
             @Override
             public String toString() {
-                return "Ast.Statement.Declaration{" +
-                        "name='" + name + '\'' +
-                        ", value=" + value +
+                return "Lemma{" +
+                        "name=" + name +
+                        "expression=" + expression +
                         '}';
             }
 
         }
 
+        public static final class Transformation extends Statement {
+            private final String name;
 
 
+            private final Ast.Expression expression;
+            private final Ast.Expression inference;
+            private List<Ast.Expression> exprStructure;
+            private List<Ast.Expression> infrStructure;
+
+            public Transformation(String name, Ast.Expression expression, Ast.Expression inference) {
+                this.name = name;
+                this.expression = expression;
+                this.inference = inference;
+            }
+
+            public List<Ast.Expression> getExprStructure() {
+                return exprStructure;
+            }
+
+            public void setExprStructure(List<Ast.Expression> exprStructure) {
+                this.exprStructure = exprStructure;
+            }
+
+            public List<Ast.Expression> getInfrStructure() {
+                return infrStructure;
+            }
+
+            public void setInfrStructure(List<Ast.Expression> infrStructure) {
+                this.infrStructure = infrStructure;
+            }
+
+            public Ast.Expression getInference() {
+                return inference;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public Ast.Expression getExpression() {
+                return expression;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Transformation that = (Transformation) o;
+                return Objects.equals(name, that.name) && Objects.equals(expression, that.expression) && Objects.equals(inference, that.inference);
+            }
+
+            @Override
+            public String toString() {
+                return "Transformation{" +
+                        "name='" + name + '\'' +
+                        ", expression=" + expression +
+                        ", inference=" + inference +
+                        '}';
+            }
+        }
     }
 
     public static abstract class Expression extends Ast {
@@ -136,7 +207,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Ast.Expression.Literal{" +
+                return "Literal{" +
                         "literal=" + literal +
                         '}';
             }
@@ -174,9 +245,9 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Ast.Expression.Variable{" +
+                return "Variable{" +
                         "name=" + name +
-                        "value=" + value +
+                        " value=" + value +
                         '}';
             }
 
@@ -202,7 +273,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Ast.Expression.Group{" +
+                return "Group{" +
                         "expression=" + expression +
                         '}';
             }
@@ -243,7 +314,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Ast.Expression.Binary{" +
+                return "Binary{" +
                         "operator='" + operator + '\'' +
                         ", left=" + left +
                         ", right=" + right +
@@ -272,7 +343,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Ast.Expression.Not{" +
+                return "Not{" +
                         "expression="+expr+
                         '}';
             }
@@ -281,6 +352,7 @@ public abstract class Ast {
 
     public static final class Reason extends Ast {
         private String reason;
+
         private List<Integer> lines;
 
         public Reason(String reason, List<Integer> lines) {
@@ -290,5 +362,59 @@ public abstract class Ast {
 
         public String getReason() {return reason;}
         public List<Integer> getLines() {return lines;}
+
+        @Override
+        public String toString() {
+            return "Reason{" +
+                    "reason='" + reason + '\'' +
+                    ", lines=" + lines +
+                    '}';
+        }
+    }
+
+    public interface Visitor<T> {
+
+        default T visit(Ast ast) {
+            if (ast instanceof Source) {
+                return visit((Source) ast);
+            } else if (ast instanceof Statement.Transformation) {
+                return visit((Statement.Transformation) ast);
+            } else if (ast instanceof Statement.Lemma) {
+                return visit((Statement.Lemma) ast);
+            } else if (ast instanceof Statement.Expression) {
+                return visit((Statement.Expression) ast);
+            } else if (ast instanceof Expression.Literal) {
+                return visit((Expression.Literal) ast);
+            } else if (ast instanceof Expression.Binary) {
+                return visit((Expression.Binary) ast);
+            } else if (ast instanceof Expression.Not) {
+                return visit((Expression.Not) ast);
+            } else if (ast instanceof Expression.Variable) {
+                return visit((Expression.Variable) ast);
+            } else if (ast instanceof Reason) {
+                return visit((Reason) ast);
+            }  else {
+                throw new AssertionError("Unimplemented AST type: " + ast.getClass().getName() + ".");
+            }
+        }
+
+        T visit(Source ast);
+
+        T visit(Statement.Transformation ast);
+
+        T visit(Statement.Lemma ast);
+
+        T visit(Statement.Expression ast);
+
+        T visit(Expression.Literal ast);
+
+        T visit(Expression.Binary ast);
+
+        T visit(Expression.Not ast);
+
+        T visit(Expression.Variable ast);
+
+        T visit(Reason ast);
     }
 }
+
