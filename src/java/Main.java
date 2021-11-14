@@ -17,30 +17,36 @@ Line(#1) Identifier(Let) Identifier(a) Operator(=) Identifier(b) Reason(\t) Iden
 public class Main {
     public static void main(String[] args) {
         String input = """
-                (A1) p \\implies (\\not q \\implies p)
-                
-                [modus ponens] ((p \\implies q) \\and p) \\infer q
-                [hypothetical syllogism] ((p \\implies q) \\and (q \\implies r)) \\infer (p \\implies r)
-                
-                (HS1) ( q \\implies r) \\implies ((p \\implies q) \\implies (p \\implies r))
-                (DN1) \\not \\not p \\implies p
-                (TR1) (p \\implies q) \\implies (\\not q \\implies \\not p)
-                
-                #1 p \\implies (\\not q \\implies p) \t A1
-                #2 (\\not q \\implies p) \\implies (\\not p \\implies \\not \\not q) \t TR1
-                #3 p \\implies ( \\not p \\implies \\not \\not q) \t hypothetical syllogism (1, 2)
-                #4 \\not \\not q \\implies q \t DN1
-                #5 (\\not \\not q \\implies q) \\implies ((\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q)) \t HS1
-                #6 (\\not p \\implies \\not \\not q) \\implies (\\not p \\implies q) \t modus ponens (5, 4)
-                #7 p \\implies ( \\not p \\implies q) \t hypothetical syllogism (3, 6)
+                (A1) p -> (~ q -> p)
+                                
+                [modus ponens] ((p -> q) ^ p) |- q
+                [hypothetical syllogism] ((p -> q) ^ (q -> r)) |- (p -> r)
+                                
+                (HS1) ( q -> r) -> ((p -> q) -> (p -> r))
+                (DN1) ~ ~ p -> p
+                (TR1) (p -> q) -> (~ q -> ~ p)
+                                
+                #1 p -> (~ q -> p)                                  A1
+                #2 (~ q -> p) -> (~ p -> ~ ~ q) 	                TR1
+                #3 p -> ( ~ p -> ~ ~ q) 	                        hypothetical syllogism (1, 2)
+                #4 ~ ~ q -> q 	                                    DN1
+                #5 (~ ~ q -> q) -> ((~ p -> ~ ~ q) -> (~ p -> q)) 	HS1
+                #6 (~ p -> ~ ~ q) -> (~ p -> q) 	                modus ponens (5, 4)
+                #7 p -> ( ~ p -> q) 	                            hypothetical syllogism (3, 6)
                 """;
-        Lexer lexer = new Lexer(input);
-        List<Token> tokens = lexer.lex();
-        Parser parser = new Parser(tokens);
-        Ast.Source ast = parser.parseSource();
-        Analyzer analyzer = new Analyzer();
-        analyzer.visit(ast);
-
+        try {
+            Lexer lexer = new Lexer(input);
+            List<Token> tokens = lexer.lex();
+            System.out.println(tokens);
+            Parser parser = new Parser(tokens);
+            Ast.Source ast = parser.parseSource();
+            Analyzer analyzer = new Analyzer();
+            analyzer.visit(ast);
+        } catch(ParseException e) {
+            System.out.println("Parse Exception: " + e.getMessage() + " at " + e.getIndex());
+        } catch(AnalyzeException e) {
+            System.out.println("Analyze Exception: " + e.getMessage() + " at " + e.getPosition());
+        }
     }
 
     private static void printAst(Ast root) {
