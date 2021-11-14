@@ -21,18 +21,23 @@ public class Main {
                                 
                 [modus ponens] ((p -> q) ^ p) |- q
                 [hypothetical syllogism] ((p -> q) ^ (q -> r)) |- (p -> r)
+                [constructive dilemma] (p -> q) ^ (r -> s) ^ (p + r) |- (q + s)
                                 
                 (HS1) ( q -> r) -> ((p -> q) -> (p -> r))
-                (DN1) ~ ~ p -> p
+                (DN1) p <-> ~~p
                 (TR1) (p -> q) -> (~ q -> ~ p)
                                 
                 #1 p -> (~ q -> p)                                  A1
                 #2 (~ q -> p) -> (~ p -> ~ ~ q) 	                TR1
-                #3 p -> ( ~ p -> ~ ~ q) 	                        hypothetical syllogism (1, 2)
+                #3 p -> ( ~ p -> ~ ~ q) 	                        hypothetical syllogism (2, 1)
                 #4 ~ ~ q -> q 	                                    DN1
                 #5 (~ ~ q -> q) -> ((~ p -> ~ ~ q) -> (~ p -> q)) 	HS1
-                #6 (~ p -> ~ ~ q) -> (~ p -> q) 	                modus ponens (5, 4)
+                #6 (~ p -> ~ ~ q) -> (~ p -> q) 	                modus ponens (4, 5)
                 #7 p -> ( ~ p -> q) 	                            hypothetical syllogism (3, 6)
+                #8 (p -> q) -> (q->r) given
+                #9 (q -> p) -> (r->s) given
+                #10 (p->q)+(q->p) given
+                #11 (q->r) + (r->s) constructive dilemma (10, 8, 9)
                 """;
         try {
             Lexer lexer = new Lexer(input);

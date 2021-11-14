@@ -42,6 +42,25 @@ public class Analyzer implements Ast.Visitor<Void> {
     public Void visit(Ast.Statement.Lemma ast) {
         currentPosition = "lemma " + ast.getName();
         exprTrace = new LinkedList<>();
+
+        if (ast.getExpression() instanceof Ast.Expression.Binary) {
+            Ast.Expression.Binary lemmaExpression = (Ast.Expression.Binary)ast.getExpression();
+            if (lemmaExpression.getOperator().equals("\\iff")) {
+                Ast.Expression left = lemmaExpression.getLeft();
+                Ast.Expression right = lemmaExpression.getRight();
+
+                lemmaExpression = new Ast.Expression.Binary("\\implies", left, right);
+                visit(lemmaExpression);
+                ast.setStructure(exprTrace);
+                exprTrace = new LinkedList<>();
+                lemmaExpression = new Ast.Expression.Binary("\\implies", right, left);
+                visit(lemmaExpression);
+                ast.setOtherWayStructure(exprTrace);
+                lemmas.put(ast.getName(), ast);
+                return null;
+            }
+        }
+
         visit(ast.getExpression());
         ast.setStructure(exprTrace);
         lemmas.put(ast.getName(), ast);
@@ -63,19 +82,40 @@ public class Analyzer implements Ast.Visitor<Void> {
     }
 
     public void checkLemma(Ast.Statement.Expression ast) {
-        checkStructure(ast.getExpression(), lemmas.get(ast.getReason().getReason().toLowerCase()).getStructure());
+        Ast.Statement.Lemma lemma = lemmas.get(ast.getReason().getReason().toLowerCase());
+        if (lemma.getOtherWayStructure() != null) {
+            try {
+                checkStructure(ast.getExpression(), lemma.getOtherWayStructure());
+                return;
+            } catch(AnalyzeException e) {}
+        }
+        checkStructure(ast.getExpression(), lemma.getStructure());
     }
 
     public void checkTransformation(Ast.Statement.Expression ast) {
-        var expression = lines.get(ast.getReason().getLines().get(0)).getExpression();
-        for(int i = 1; i < ast.getReason().getLines().size(); i++) {
-            expression = new Ast.Expression.Binary("\\and", expression, lines.get(ast.getReason().getLines().get(i)).getExpression());
-        }
-
+        List<Integer> reasonLines = ast.getReason().getLines();
+        List<List<Integer>> reasonPermutation = permute(reasonLines);
         var transformation = transformations.get(ast.getReason().getReason().toLowerCase().replace(" ", ""));
 
-        checkStructure(expression, transformation.getExprStructure());
-        checkStructure(ast.getExpression(), transformation.getInfrStructure(), this.variables);
+        if (reasonPermutation.isEmpty())
+            throw new AnalyzeException("Missing line # for reason", currentPosition);
+
+        for (int j = 0; j<reasonPermutation.size(); j++) {
+            List<Integer> p = reasonPermutation.get(j);
+            try {
+                Ast.Expression expression = lines.get(p.get(0)).getExpression();
+                for (int i=1; i<p.size(); i++) {
+                    expression = new Ast.Expression.Binary("\\and", expression, lines.get(p.get(i)).getExpression());
+                }
+                checkStructure(expression, transformation.getExprStructure());
+                checkStructure(ast.getExpression(), transformation.getInfrStructure(), this.variables);
+                return;
+            }
+            catch (AnalyzeException e) {
+                if (j == reasonPermutation.size() - 1)
+                    throw e;
+            }
+        }
     }
 
     @Override
@@ -152,5 +192,37 @@ public class Analyzer implements Ast.Visitor<Void> {
             throw new AnalyzeException("Unknown class " + expr.getClass(), currentPosition);
         }
 
+    }
+
+    private static <T> List<List<T>> permute(List<T> stmts) {
+        List<List<T>> result = new ArrayList<List<T>>();
+
+        //start from an empty list
+        result.add(new ArrayList<T>());
+
+        for (int i = 0; i < stmts.size(); i++) {
+            //list of list in current iteration of the array num
+            ArrayList<ArrayList<T>> current = new ArrayList<ArrayList<T>>();
+
+            for (List<T> l : result) {
+                // # of locations to insert is largest index + 1
+                for (int j = 0; j < l.size()+1; j++) {
+                    // + add num[i] to different locations
+                    l.add(j, stmts.get(i));
+
+                    ArrayList<T> temp = new ArrayList<T>(l);
+                    current.add(temp);
+
+                    //System.out.println(temp);
+
+                    // - remove num[i] add
+                    l.remove(j);
+                }
+            }
+
+            result = new ArrayList<List<T>>(current);
+        }
+
+        return result;
     }
 }

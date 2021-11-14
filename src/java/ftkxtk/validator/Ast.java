@@ -2,7 +2,6 @@ package ftkxtk.validator;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 /**
  * See the Parser assignment specification for specific notes on each AST class
@@ -82,17 +81,20 @@ public abstract class Ast {
             private final Ast.Expression expression;
 
             private List<Ast.Expression> structure;
+            private List<Ast.Expression> otherWayStructure;
 
 
             public Lemma(String name, Ast.Expression expression) {
                 super();
                 this.name = name;
                 this.expression = expression;
+                otherWayStructure = null;
             }
 
             public void setStructure(List<Ast.Expression> structure) {
                 this.structure = structure;
             }
+            public void setOtherWayStructure(List<Ast.Expression> structure) {otherWayStructure = structure;}
 
             public String getName() {
                 return name;
@@ -105,6 +107,7 @@ public abstract class Ast {
             public List<Ast.Expression> getStructure() {
                 return structure;
             }
+            public List<Ast.Expression> getOtherWayStructure() {return otherWayStructure;}
 
             @Override
             public boolean equals(Object obj) {
