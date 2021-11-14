@@ -15,7 +15,7 @@ public final class Lexer {
     public List<Token> lex() {
         List<Token> tokens = new ArrayList<>();
         while(chars.has(0)) {
-            if (match("[ \n\r\b]")) {
+            if (match("[ \n\r\b\t]")) {
                 chars.skip();
             } else {
                 tokens.add(lexToken());
@@ -54,7 +54,8 @@ public final class Lexer {
                 throw new ParseException("\\ cannot be used alone", chars.index);
             while(peek("[^ \b\n\r\t\\\\]")) { chars.advance(); }
         } else {
-            chars.advance();
+            if(!match("-",">") && !match("\\|","-") && !match("<","-",">"))
+                chars.advance();
         }
         return chars.emit(Token.Type.OPERATOR);
     }

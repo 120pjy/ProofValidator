@@ -8,6 +8,8 @@ public class Analyzer implements Ast.Visitor<Void> {
     private final HashMap<String, Ast.Statement.Lemma> lemmas = new HashMap<>();
     private final HashMap<Integer, Ast.Statement.Expression> lines = new HashMap<>();
 
+    private String currentPosition;
+
     private List<Ast.Expression> exprTrace;
     private Queue<Ast.Expression> checkQueue;
     private HashMap<String, Ast.Expression> variables;
@@ -25,6 +27,7 @@ public class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Transformation ast) {
+        currentPosition = "transposition "+ ast.getName();
         exprTrace = new LinkedList<>();
         visit(ast.getExpression());
         ast.setExprStructure(exprTrace);
@@ -37,6 +40,7 @@ public class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Lemma ast) {
+        currentPosition = "lemma " + ast.getName();
         exprTrace = new LinkedList<>();
         visit(ast.getExpression());
         ast.setStructure(exprTrace);
@@ -46,6 +50,7 @@ public class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Expression ast) {
+        currentPosition = "line #"+ast.getLine();
         lines.put(ast.getLine(), ast);
 
         if(ast.getReason().getReason().equals("given")) return null;
@@ -128,7 +133,7 @@ public class Analyzer implements Ast.Visitor<Void> {
             String varName = ((Ast.Expression.Variable)refNode).getName();
             if(variables.containsKey(varName)) {
                 if(!variables.get(varName).equals(expr))
-                    throw new RuntimeException("variable is inconsistent");
+                    throw new AnalyzeException("variable is inconsistent", currentPosition);
             } else {
                 variables.put(varName, expr);
             }
@@ -136,7 +141,7 @@ public class Analyzer implements Ast.Visitor<Void> {
         }
 
         if (expr.getClass() != refNode.getClass())
-            throw new RuntimeException("Expression types mismatch");
+            throw new AnalyzeException("Expression types mismatch", currentPosition);
 
         if (expr instanceof Ast.Expression.Binary) {
             checkStructure(((Ast.Expression.Binary) expr).getLeft());
@@ -144,7 +149,7 @@ public class Analyzer implements Ast.Visitor<Void> {
         } else if (expr instanceof Ast.Expression.Not){
             checkStructure(((Ast.Expression.Not) expr).getExpression());
         } else {
-            throw new RuntimeException("Unknown class " + expr.getClass());
+            throw new AnalyzeException("Unknown class " + expr.getClass(), currentPosition);
         }
 
     }
