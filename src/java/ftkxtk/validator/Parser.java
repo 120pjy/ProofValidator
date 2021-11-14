@@ -58,7 +58,7 @@ public final class Parser {
         if (!match("]")) throw new ParseException("No ]", tokens.index);
         Ast.Expression expr = parseImplicationExpression();
 
-        if (!match("\\infer")) throw new ParseException("No \\infer", tokens.index);
+        if (!match("\\infer") && !match("|-")) throw new ParseException("No \\infer or |-", tokens.index);
         Ast.Expression inference = parseImplicationExpression();
 
         return new Ast.Statement.Transformation(name.toString().toLowerCase(), expr, inference);
@@ -78,8 +78,12 @@ public final class Parser {
 
     public Ast.Expression parseImplicationExpression() throws ParseException {
         Ast.Expression expr = parseLogicalExpression();
-        while (match("\\implies") || match("\\iff") || match("=")) {
+        while (match("\\implies") || match("->") || match("\\iff") || match("<->") || match("=")) {
             String operator = tokens.get(-1).getLiteral();
+            if(operator.equals("->"))
+                operator = "\\implies";
+            if(operator.equals("<->"))
+                operator = "\\iff";
             Ast.Expression right = parseLogicalExpression();
             expr = new Ast.Expression.Binary(operator, expr, right);
         }
@@ -88,8 +92,12 @@ public final class Parser {
 
     public Ast.Expression parseLogicalExpression() throws ParseException {
         Ast.Expression expr = parsePrimaryExpression();
-        while (match("\\and") || match("\\or")) {
+        while (match("\\and") || match("\\or") || match("^") || match("+")) {
             String operator = tokens.get(-1).getLiteral();
+            if(operator.equals("^"))
+                operator = "\\and";
+            if(operator.equals("+"))
+                operator = "\\or";
             Ast.Expression right = parsePrimaryExpression();
             expr = new Ast.Expression.Binary(operator, expr, right);
         }
@@ -103,7 +111,7 @@ public final class Parser {
             return new Ast.Expression.Variable(tokens.get(-1).getLiteral());
         } else if (match(Token.Type.Number)) {
             return new Ast.Expression.Literal(new BigDecimal(tokens.get(-1).getLiteral()));
-        } else if (match("\\not")) {
+        } else if (match("\\not") || match("~")) {
             return parseNot();
         } else if (match("(")){
             return parseGroup();
@@ -125,8 +133,6 @@ public final class Parser {
     }
 
     public Ast.Reason parseReason() throws ParseException {
-        if(!match("\t"))
-            throw new ParseException("reason indicator (\\t) expected.", tokens.index);
         if(!match(Token.Type.IDENTIFIER))
             throw new ParseException("at least one identifier expected.", tokens.index);
         StringBuilder reason = new StringBuilder(tokens.get(-1).getLiteral());
