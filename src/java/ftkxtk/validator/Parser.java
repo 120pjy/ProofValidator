@@ -4,9 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.ArrayList;
 
-import static ftkxtk.validator.Token.Type.IDENTIFIER;
-import static ftkxtk.validator.Token.Type.Line;
-
 public final class Parser {
 
     private final TokenStream tokens;
@@ -40,7 +37,7 @@ public final class Parser {
 
     public Ast.Statement.Lemma parseLemmaStatement() throws ParseException {
         if (!match("(")) throw new ParseException("No (", tokens.index);
-        if(!match(IDENTIFIER)) throw new ParseException("No name", tokens.index);
+        if(!match(Token.Type.IDENTIFIER)) throw new ParseException("No name", tokens.index);
         String name = tokens.get(-1).getLiteral();
         if (!match(")")) throw new ParseException("No )", tokens.index);
         Ast.Expression expr = parseImplicationExpression();
@@ -50,9 +47,9 @@ public final class Parser {
     public Ast.Statement.Transformation parseTransformationStatement() throws ParseException {
         if (!match("[")) throw new ParseException("No [", tokens.index);
         StringBuilder name = new StringBuilder();
-        if(!peek(IDENTIFIER))
+        if(!peek(Token.Type.IDENTIFIER))
             throw new ParseException("No name", tokens.index);
-        while(match(IDENTIFIER)) {
+        while(match(Token.Type.IDENTIFIER)) {
             name.append(tokens.get(-1).getLiteral());
         }
         if (!match("]")) throw new ParseException("No ]", tokens.index);

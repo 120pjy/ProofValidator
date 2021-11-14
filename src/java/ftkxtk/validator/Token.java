@@ -6,8 +6,7 @@ public final class Token {
         IDENTIFIER,
         OPERATOR,
         Number,
-        Line,
-        Reason
+        Line
     }
 
     private final Type type;
