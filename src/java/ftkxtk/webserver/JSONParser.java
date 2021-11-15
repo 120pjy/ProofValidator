@@ -61,7 +61,7 @@ public class JSONParser {
                 while (!matchString("\"")) {
                     advance();
                 }
-                tokens.add(new Token(Token.Type.STRING, input.substring(cursor - length + 1, cursor - 1)));
+                tokens.add(new Token(Token.Type.STRING, input.substring(cursor - length + 1, cursor - 1).replace("\\n", "\n").replace("\\r", "\r").replace("\\t", "\t").replace("\\b", "\b")));
             } else {
                 advance();
                 tokens.add(new Token(Token.Type.OPERATOR, input.substring(cursor - length, cursor)));
