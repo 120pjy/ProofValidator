@@ -6,16 +6,17 @@ public final class Token {
         IDENTIFIER,
         OPERATOR,
         Number,
-        Line
     }
 
     private final Type type;
     private final String literal;
+    private final int line;
     private final int index;
 
-    public Token(Type type, String literal, int index) {
+    public Token(Type type, String literal, int line, int index) {
         this.type = type;
         this.literal = literal;
+        this.line = line;
         this.index = index;
     }
 
@@ -27,6 +28,10 @@ public final class Token {
         return literal;
     }
 
+    public int getLine() {
+        return line;
+    }
+
     public int getIndex() {
         return index;
     }
@@ -36,12 +41,13 @@ public final class Token {
         return obj instanceof Token
                 && type == ((Token) obj).type
                 && literal.equals(((Token) obj).literal)
+                && line == ((Token) obj).line
                 && index == ((Token) obj).index;
     }
 
     @Override
     public String toString() {
-        return type + "=" + literal + "@" + index;
+        return type + "=" + literal + "@line: " + line + " index: " + index;
     }
 
 }

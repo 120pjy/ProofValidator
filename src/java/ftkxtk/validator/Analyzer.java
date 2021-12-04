@@ -69,7 +69,7 @@ public class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Statement.Expression ast) {
-        currentPosition = "line #"+ast.getLine();
+        currentPosition = "Argument line #"+ast.getLine();
         lines.put(ast.getLine(), ast);
 
         if(ast.getReason().getReason().equals("given")) return null;
@@ -181,7 +181,7 @@ public class Analyzer implements Ast.Visitor<Void> {
         }
 
         if (expr.getClass() != refNode.getClass())
-            throw new AnalyzeException("Expression types mismatch", currentPosition);
+            throw new AnalyzeException("Argument structure different from reasoning", currentPosition);
 
         if (expr instanceof Ast.Expression.Binary) {
             checkStructure(((Ast.Expression.Binary) expr).getLeft());

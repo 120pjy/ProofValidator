@@ -15,7 +15,11 @@ public final class Lexer {
     public List<Token> lex() {
         List<Token> tokens = new ArrayList<>();
         while(chars.has(0)) {
-            if (match("[ \n\r\b\t]")) {
+            if (match("[ \r\b\t]")) {
+                chars.skip();
+            }
+            else if (match("[\n]")) {
+                chars.addLine();
                 chars.skip();
             } else {
                 tokens.add(lexToken());
@@ -51,7 +55,7 @@ public final class Lexer {
     public Token lexOperator() {
         if (match("\\\\")) {
             if(!chars.has(0))
-                throw new ParseException("\\ cannot be used alone", chars.index);
+                throw new ParseException("\\ cannot be used alone", chars.getLine(), chars.index);
             while(peek("[^ \b\n\r\t\\\\]")) { chars.advance(); }
         } else {
             if(!match("-",">") && !match("\\|","-") && !match("<","-",">"))
@@ -83,6 +87,8 @@ public final class Lexer {
         private final String input;
         private int index = 0;
         private int length = 0;
+        private int line = 1;
+        private int lineIndex = 0;
 
         public CharStream(String input) {
             this.input = input;
@@ -96,8 +102,13 @@ public final class Lexer {
             return input.charAt(index + offset);
         }
 
+        public int getLine() {return line;}
+
+        public void addLine() { line ++; lineIndex = 0;}
+
         public void advance() {
             index++;
+            lineIndex++;
             length++;
         }
 
@@ -108,7 +119,7 @@ public final class Lexer {
         public Token emit(Token.Type type) {
             int start = index - length;
             skip();
-            return new Token(type, input.substring(start, index), start);
+            return new Token(type, input.substring(start, index), line, lineIndex);
         }
 
     }

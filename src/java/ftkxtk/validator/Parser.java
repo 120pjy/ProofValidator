@@ -16,7 +16,7 @@ public final class Parser {
         List<Ast.Statement> statements = new ArrayList<>();
         while (tokens.has(0)) {
             Ast.Statement stmt = parseStatement();
-            if (stmt == null) throw new ParseException("Can't parse statement", tokens.index);
+            if (stmt == null) throw error("Can't parse statement");
             statements.add(stmt);
         }
         return new Ast.Source(statements);
@@ -36,36 +36,38 @@ public final class Parser {
     }
 
     public Ast.Statement.Lemma parseLemmaStatement() throws ParseException {
-        if (!match("(")) throw new ParseException("No (", tokens.index);
-        if(!match(Token.Type.IDENTIFIER)) throw new ParseException("No name", tokens.index);
+        if (!match("(")) throw error("No (");
+        if(!match(Token.Type.IDENTIFIER)) throw error("No name");
         String name = tokens.get(-1).getLiteral();
-        if (!match(")")) throw new ParseException("No )", tokens.index);
+        if (!match(")")) throw error("No )");
         Ast.Expression expr = parseImplicationExpression();
         return new Ast.Statement.Lemma(name.toLowerCase(), expr);
     }
 
     public Ast.Statement.Transformation parseTransformationStatement() throws ParseException {
-        if (!match("[")) throw new ParseException("No [", tokens.index);
+        if (!match("[")) throw error("No [");
         StringBuilder name = new StringBuilder();
         if(!peek(Token.Type.IDENTIFIER))
-            throw new ParseException("No name", tokens.index);
+            throw error("No name");
         while(match(Token.Type.IDENTIFIER)) {
             name.append(tokens.get(-1).getLiteral());
         }
-        if (!match("]")) throw new ParseException("No ]", tokens.index);
+        if (!match("]")) throw error("No ]");
         Ast.Expression expr = parseImplicationExpression();
 
-        if (!match("\\infer") && !match("|-")) throw new ParseException("No \\infer or |-", tokens.index);
+        if (!match("\\infer") && !match("|-")) throw error("No \\infer or |-");
         Ast.Expression inference = parseImplicationExpression();
 
         return new Ast.Statement.Transformation(name.toString().toLowerCase(), expr, inference);
     }
 
     public Ast.Statement.Expression parseExpressionStatement() throws ParseException {
-        if (!match("#", Token.Type.Number)) throw new ParseException("No Line number", tokens.index);
+        if (!match("#", Token.Type.Number)) throw error("No Line number");
         int line = Integer.parseInt(tokens.get(-1).getLiteral());
         Ast.Expression expr = parseImplicationExpression();
+        if(!match("<")) throw error("< expected");
         Ast.Reason reason = parseReason();
+        if(!match(">")) throw error("> expected");
         return new Ast.Statement.Expression(line, reason, expr);
     }
 
@@ -113,14 +115,14 @@ public final class Parser {
         } else if (match("(")){
             return parseGroup();
         } else {
-            throw new ParseException("Invalid expression.", tokens.index);
+            throw error("Invalid expression.");
         }
     }
 
     private Ast.Expression parseGroup() throws ParseException {
         Ast.Expression expr = parseExpression();
         if (!match(")")) {
-            throw new ParseException(") expected.", tokens.index);
+            throw error(") expected.");
         }
         return expr;
     }
@@ -131,7 +133,7 @@ public final class Parser {
 
     public Ast.Reason parseReason() throws ParseException {
         if(!match(Token.Type.IDENTIFIER))
-            throw new ParseException("at least one identifier expected.", tokens.index);
+            throw error("at least one identifier expected.");
         StringBuilder reason = new StringBuilder(tokens.get(-1).getLiteral());
         while(match(Token.Type.IDENTIFIER)) {
             reason.append(" ").append(tokens.get(-1).getLiteral());
@@ -140,11 +142,11 @@ public final class Parser {
         if(match("(")) {
             while (!match(")")) {
                 if (!match(Token.Type.Number)) {
-                    throw new ParseException(") expected.", tokens.index);
+                    throw error(") expected.");
                 }
                 lines.add(Integer.parseInt(tokens.get(-1).getLiteral()));
                 if (!match(",") && !peek(")")) {
-                    throw new ParseException(", expected.", tokens.index);
+                    throw error(", expected.");
                 }
             }
         }
@@ -185,6 +187,10 @@ public final class Parser {
         return peek;
     }
 
+    private ParseException error (String message){
+        return new ParseException(message, tokens.has(0) ? tokens.get(0).getLine() : tokens.get(-1).getLine(), tokens.has(0) ? tokens.get(0).getIndex() : tokens.get(-1).getIndex() + tokens.get(-1).getLiteral().length());
+    }
+
     private static final class TokenStream {
 
         private final List<Token> tokens;
@@ -207,5 +213,6 @@ public final class Parser {
         }
 
     }
+
 
 }
