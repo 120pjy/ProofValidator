@@ -81,7 +81,5 @@ ProofValidator.iml
 /Proof Validator.iml
 /.idea/runConfigurations.xml
 
-.idea/modules.xml
-
 src/java/Main.java
 src/frontend/node_modules
