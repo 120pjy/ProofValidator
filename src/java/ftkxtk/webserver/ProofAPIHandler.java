@@ -32,15 +32,18 @@ public class ProofAPIHandler implements HttpHandler {
         JSONObject obj = jsonParser.parse(body);
         if(obj.get("proof") instanceof String) {
             try {
+                System.out.println("sex");
                 Lexer lexer = new Lexer((String) obj.get("proof"));
                 Parser parser = new Parser(lexer.lex());
                 Analyzer analyzer = new Analyzer();
                 analyzer.visit(parser.parseSource());
                 res(exchange, "no error has been found on this proof.");
             } catch(ParseException e) {
-                res(exchange, "Parse Exception: " + e.getMessage() +" on line " + e.getLine() + " at index " + e.getIndex());
+                res(exchange, "Parse Exception: " + e.getMessage() +" on line " + e.getLine() + " at  index " + e.getIndex());
             } catch(AnalyzeException e) {
                 res(exchange, "Analyze Exception: " + e.getMessage() + " at " + e.getPosition());
+            } catch(Exception e) {
+                res(exchange, "Unknown Exception: " + e.getMessage());
             }
         } else {
             res(exchange, 400, "proof field required");
@@ -52,8 +55,9 @@ public class ProofAPIHandler implements HttpHandler {
     }
 
     private void res(HttpExchange httpExchange, int status, String message) throws IOException{
+        String processedMessage = message.replace("\n", "\\n");
         OutputStream out = httpExchange.getResponseBody();
-        String json = "{\"message\": \"" + message + "\"}";
+        String json = "{\"message\": \"" + processedMessage + "\"}";
         httpExchange.getResponseHeaders().set("Content-Type", "appication/json");
         httpExchange.sendResponseHeaders(status, json.length());
         out.write(json.getBytes());
