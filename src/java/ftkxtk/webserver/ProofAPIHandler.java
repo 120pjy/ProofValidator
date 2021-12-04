@@ -6,9 +6,7 @@ import ftkxtk.validator.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 public class ProofAPIHandler implements HttpHandler {
 
@@ -40,7 +38,9 @@ public class ProofAPIHandler implements HttpHandler {
             } catch(ParseException e) {
                 res(exchange, "Parse Exception: " + e.getMessage() +" on line " + e.getLine() + " at index " + e.getIndex());
             } catch(AnalyzeException e) {
-                res(exchange, "Analyze Exception: " + e.getMessage() + " at " + e.getPosition());
+                String message = "Analyze Exception: " + e.getMessage() + " at " + e.getPosition();
+                message += "\nreceived " + e.getAst();
+                res(exchange, message);
             }
         } else {
             res(exchange, 400, "proof field required");

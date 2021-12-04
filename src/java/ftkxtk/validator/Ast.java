@@ -67,11 +67,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Statement.Expression{" +
-                        "line=" + line +
-                        "reason=" + reason +
-                        "expression=" + expression +
-                        '}';
+                return expression.toString();
             }
 
         }
@@ -118,10 +114,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Lemma{" +
-                        "name=" + name +
-                        "expression=" + expression +
-                        '}';
+                return expression.toString();
             }
 
         }
@@ -179,11 +172,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Transformation{" +
-                        "name='" + name + '\'' +
-                        ", expression=" + expression +
-                        ", inference=" + inference +
-                        '}';
+                return expression.toString() + "|-" + inference.toString();
             }
         }
     }
@@ -210,9 +199,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Literal{" +
-                        "literal=" + literal +
-                        '}';
+                return literal.toString();
             }
 
         }
@@ -248,10 +235,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Variable{" +
-                        "name=" + name +
-                        " value=" + value +
-                        '}';
+                return name;
             }
 
         }
@@ -276,9 +260,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Group{" +
-                        "expression=" + expression +
-                        '}';
+                return "("+expression+")";
             }
 
         }
@@ -317,11 +299,13 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Binary{" +
-                        "operator='" + operator + '\'' +
-                        ", left=" + left +
-                        ", right=" + right +
-                        '}';
+                String leftString = left.toString();
+                if (left instanceof Binary)
+                    leftString = "("+leftString+")";
+                String rightString = right.toString();
+                if (right instanceof Binary)
+                    rightString = "("+rightString+")";
+                return leftString + operator + rightString;
             }
         }
 
@@ -346,9 +330,7 @@ public abstract class Ast {
 
             @Override
             public String toString() {
-                return "Not{" +
-                        "expression="+expr+
-                        '}';
+                return "~"+expr;
             }
         }
     }

@@ -98,7 +98,7 @@ public class Analyzer implements Ast.Visitor<Void> {
         var transformation = transformations.get(ast.getReason().getReason().toLowerCase().replace(" ", ""));
 
         if (reasonPermutation.isEmpty())
-            throw new AnalyzeException("Missing line # for reason", currentPosition);
+            throw new AnalyzeException("Missing line # for reason", currentPosition, ast);
 
         for (int j = 0; j<reasonPermutation.size(); j++) {
             List<Integer> p = reasonPermutation.get(j);
@@ -173,7 +173,7 @@ public class Analyzer implements Ast.Visitor<Void> {
             String varName = ((Ast.Expression.Variable)refNode).getName();
             if(variables.containsKey(varName)) {
                 if(!variables.get(varName).equals(expr))
-                    throw new AnalyzeException("variable is inconsistent", currentPosition);
+                    throw new AnalyzeException("variable is inconsistent", currentPosition, expr);
             } else {
                 variables.put(varName, expr);
             }
@@ -181,7 +181,7 @@ public class Analyzer implements Ast.Visitor<Void> {
         }
 
         if (expr.getClass() != refNode.getClass())
-            throw new AnalyzeException("Argument structure different from reasoning", currentPosition);
+            throw new AnalyzeException("Argument structure different from reasoning", currentPosition, expr);
 
         if (expr instanceof Ast.Expression.Binary) {
             checkStructure(((Ast.Expression.Binary) expr).getLeft());
@@ -189,7 +189,7 @@ public class Analyzer implements Ast.Visitor<Void> {
         } else if (expr instanceof Ast.Expression.Not){
             checkStructure(((Ast.Expression.Not) expr).getExpression());
         } else {
-            throw new AnalyzeException("Unknown class " + expr.getClass(), currentPosition);
+            throw new AnalyzeException("Unknown class " + expr.getClass(), currentPosition, expr);
         }
 
     }
@@ -212,8 +212,6 @@ public class Analyzer implements Ast.Visitor<Void> {
 
                     ArrayList<T> temp = new ArrayList<T>(l);
                     current.add(temp);
-
-                    //System.out.println(temp);
 
                     // - remove num[i] add
                     l.remove(j);
