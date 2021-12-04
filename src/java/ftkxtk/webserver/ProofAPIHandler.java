@@ -38,7 +38,7 @@ public class ProofAPIHandler implements HttpHandler {
                 analyzer.visit(parser.parseSource());
                 res(exchange, "no error has been found on this proof.");
             } catch(ParseException e) {
-                res(exchange, "Parse Exception: " + e.getMessage() + " at " + e.getIndex());
+                res(exchange, "Parse Exception: " + e.getMessage() +" on line " + e.getLine() + " at index " + e.getIndex());
             } catch(AnalyzeException e) {
                 res(exchange, "Analyze Exception: " + e.getMessage() + " at " + e.getPosition());
             }
