@@ -305,7 +305,7 @@ public abstract class Ast {
                 String rightString = right.toString();
                 if (right instanceof Binary)
                     rightString = "("+rightString+")";
-                return leftString + operator.replace("\\implies", "->").replace("\\iff", "<->") + rightString;
+                return leftString + operator.replace("\\implies", "->").replace("\\iff", "<->").replace("\\and", "^").replace("\\or", "+").replace("\\infers", "|-") + rightString;
             }
         }
 

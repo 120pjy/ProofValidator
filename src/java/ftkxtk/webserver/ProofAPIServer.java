@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class ProofAPIServer {
     private static final String SERV_ADDR = "localhost";
-    private static final int PORT = 12345;
+    private static final int PORT = 5000;
 
     public static void main(String[] args) throws IOException {
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);

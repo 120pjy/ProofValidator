@@ -193,6 +193,9 @@ public class Analyzer implements Ast.Visitor<Void> {
 
         if (expr.getClass() != refNode.getClass())
             throw new AnalyzeException("Argument structure different from reasoning", currentPosition, expr);
+        if (expr instanceof Ast.Expression.Binary && refNode instanceof Ast.Expression.Binary)
+            if(!((Ast.Expression.Binary) expr).getOperator().equals(((Ast.Expression.Binary) refNode).getOperator()))
+            throw new AnalyzeException("Argument structure different", currentPosition, expr);
 
         if (expr instanceof Ast.Expression.Binary) {
             checkStructure(((Ast.Expression.Binary) expr).getLeft());
