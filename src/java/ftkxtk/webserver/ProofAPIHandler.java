@@ -57,8 +57,9 @@ public class ProofAPIHandler implements HttpHandler {
     }
 
     private void res(HttpExchange httpExchange, int status, String message) throws IOException{
+        String processedMessage = message.replace("\n", "\\n");
         OutputStream out = httpExchange.getResponseBody();
-        String json = "{\"message\": \"" + message + "\"}";
+        String json = "{\"message\": \"" + processedMessage + "\"}";
         httpExchange.getResponseHeaders().set("Content-Type", "appication/json");
         httpExchange.sendResponseHeaders(status, json.length());
         out.write(json.getBytes());
