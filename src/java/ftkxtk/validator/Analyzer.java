@@ -89,7 +89,12 @@ public class Analyzer implements Ast.Visitor<Void> {
                 return;
             } catch(AnalyzeException e) {}
         }
-        checkStructure(ast.getExpression(), lemma.getStructure());
+        try {
+            checkStructure(ast.getExpression(), lemma.getStructure());
+        }
+        catch(AnalyzeException e) {
+            throw new AnalyzeException(e.getMessage(), e.getPosition(), ast, lemma);
+        }
     }
 
     public void checkTransformation(Ast.Statement.Expression ast) {
@@ -113,7 +118,7 @@ public class Analyzer implements Ast.Visitor<Void> {
             }
             catch (AnalyzeException e) {
                 if (j == reasonPermutation.size() - 1)
-                    throw e;
+                    throw new AnalyzeException(e.getMessage(), e.getPosition(), ast, transformation);
             }
         }
     }

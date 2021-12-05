@@ -188,13 +188,24 @@ public final class Parser {
     }
 
     private ParseException error (String message){
-        return new ParseException(message, tokens.has(0) ? tokens.get(0).getLine() : tokens.get(-1).getLine(), tokens.has(0) ? tokens.get(0).getIndex() : tokens.get(-1).getIndex() + tokens.get(-1).getLiteral().length());
+        StringBuilder lineString = new StringBuilder();
+        int line = tokens.get(0).getLine();
+        for (int i = tokens.newLineIndex; tokens.has(i-tokens.index) && tokens.get(i-tokens.index).getLine() == line; i++) {
+            lineString.append(tokens.get(i - tokens.index).getLiteral());
+        }
+        return new ParseException(
+                message,
+                tokens.has(0) ? tokens.get(0).getLine() : tokens.get(-1).getLine(),
+                tokens.has(0) ? tokens.get(0).getIndex() : tokens.get(-1).getIndex() + tokens.get(-1).getLiteral().length(),
+                lineString.toString());
+
     }
 
     private static final class TokenStream {
 
         private final List<Token> tokens;
         private int index = 0;
+        private int newLineIndex = 0;
 
         private TokenStream(List<Token> tokens) {
             this.tokens = tokens;
@@ -208,8 +219,18 @@ public final class Parser {
             return tokens.get(index + offset);
         }
 
+        public int getNewLineIndex() {
+            return newLineIndex;
+        }
+
         public void advance() {
             index++;
+            if (tokens.get(index).getLine() == 1)
+                return;
+
+            if (tokens.get(index-1).getLine() != tokens.get(index).getLine()) {
+                newLineIndex = index;
+            }
         }
 
     }

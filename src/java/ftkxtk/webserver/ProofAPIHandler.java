@@ -36,10 +36,15 @@ public class ProofAPIHandler implements HttpHandler {
                 analyzer.visit(parser.parseSource());
                 res(exchange, "no error has been found on this proof.");
             } catch(ParseException e) {
-                res(exchange, "Parse Exception: " + e.getMessage() +" on line " + e.getLine() + " at index " + e.getIndex());
+                String message = "Parse Exception: " + e.getMessage() +" on line " + e.getLine() + " at index " + e.getIndex();
+                if (e.getLineString() != null)
+                    message += "\nreceived: "+e.getLineString();
+                res(exchange, message);
             } catch(AnalyzeException e) {
                 String message = "Analyze Exception: " + e.getMessage() + " at " + e.getPosition();
-                message += "\nreceived " + e.getAst();
+                message += "\nreceived: " + e.getActual();
+                if (e.getExpected() != null)
+                    message += "\nexpected: "+e.getExpected();
                 res(exchange, message);
             }
         } else {
