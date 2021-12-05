@@ -133,7 +133,7 @@ public final class Parser {
 
     public Ast.Reason parseReason() throws ParseException {
         if(!match(Token.Type.IDENTIFIER))
-            throw error("at least one identifier expected.");
+            throw error("reason name expected.");
         StringBuilder reason = new StringBuilder(tokens.get(-1).getLiteral());
         while(match(Token.Type.IDENTIFIER)) {
             reason.append(" ").append(tokens.get(-1).getLiteral());
@@ -191,6 +191,9 @@ public final class Parser {
         StringBuilder lineString = new StringBuilder();
         int line = tokens.get(0).getLine();
         for (int i = tokens.newLineIndex; tokens.has(i-tokens.index) && tokens.get(i-tokens.index).getLine() == line; i++) {
+            String str = lineString.toString();
+            if (str.length() >= 2 && str.lastIndexOf('#') == str.length()-2 && Character.isDigit(str.charAt(str.length()-1)))
+                lineString.append(" ");
             lineString.append(tokens.get(i - tokens.index).getLiteral());
         }
         return new ParseException(
@@ -225,7 +228,7 @@ public final class Parser {
 
         public void advance() {
             index++;
-            if (tokens.get(index).getLine() == 1)
+            if (!has(0) || tokens.get(index).getLine() == 1)
                 return;
 
             if (tokens.get(index-1).getLine() != tokens.get(index).getLine()) {

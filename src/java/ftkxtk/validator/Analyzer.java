@@ -83,15 +83,17 @@ public class Analyzer implements Ast.Visitor<Void> {
 
     public void checkLemma(Ast.Statement.Expression ast) {
         if(!lemmas.containsKey(ast.getReason().getReason().toLowerCase()))
-            throw new AnalyzeException("No such lemma " + ast.getReason().getReason(), currentPosition);
+            throw new AnalyzeException("No such lemma " + ast.getReason().getReason(), currentPosition, ast);
         Ast.Statement.Lemma lemma = lemmas.get(ast.getReason().getReason().toLowerCase());
         if (lemma.getOtherWayStructure() != null) {
             try {
+                System.out.println("GetOtherWayStructure prompted");
                 checkStructure(ast.getExpression(), lemma.getOtherWayStructure());
                 return;
             } catch(AnalyzeException e) {}
         }
         try {
+            System.out.println("GetStructure prompted)");
             checkStructure(ast.getExpression(), lemma.getStructure());
         }
         catch(AnalyzeException e) {
@@ -101,7 +103,7 @@ public class Analyzer implements Ast.Visitor<Void> {
 
     public void checkTransformation(Ast.Statement.Expression ast) {
         if(!transformations.containsKey(ast.getReason().getReason().toLowerCase().replace(" ", "")))
-            throw new AnalyzeException("No such transformation " + ast.getReason().getReason(), currentPosition);
+            throw new AnalyzeException("No such transformation " + ast.getReason().getReason(), currentPosition, ast);
         List<Integer> reasonLines = ast.getReason().getLines();
         List<List<Integer>> reasonPermutation = permute(reasonLines);
         var transformation = transformations.get(ast.getReason().getReason().toLowerCase().replace(" ", ""));
