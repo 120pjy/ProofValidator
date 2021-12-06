@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="ProofValidator:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ProofValidator_jar</output-path>
+    <root id="archive" name="ProofValidator.jar">
+      <element id="module-output" name="ProofValidator" />
+    </root>
+  </artifact>
+</component>
