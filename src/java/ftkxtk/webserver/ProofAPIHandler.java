@@ -36,15 +36,21 @@ public class ProofAPIHandler implements HttpHandler {
                 analyzer.visit(parser.parseSource());
                 res(exchange, "no error has been found on this proof.");
             } catch(ParseException e) {
-                String message = "Parse Exception: " + e.getMessage() +" on line " + e.getLine() + " at index " + e.getIndex();
+                String message = "Parse Exception: " + e.getMessage() +" on line " + e.getLine();
                 if (e.getLineString() != null)
-                    message += "\nreceived: "+e.getLineString();
+                    message += "\nexpression: "+e.getLineString();
+                message  += " at index " + e.getIndex();
                 res(exchange, message);
             } catch(AnalyzeException e) {
-                String message = "Analyze Exception: " + e.getMessage() + " at " + e.getPosition();
-                message += "\nreceived: " + e.getActual();
-                if (e.getExpected() != null)
-                    message += "\nexpected: "+e.getExpected();
+                String message = "Analyze Exception: " + e.getMessage() ;
+                message += "\nexpression: " + e.getActual();
+                message += " at " + e.getPosition();
+//                if (e.getExpected() != null)
+//                    message += "\nexpected: "+e.getExpected();
+                res(exchange, message);
+            } catch(Exception e) {
+                String message = "Unknown Exception: " + e.getMessage();
+                e.printStackTrace();
                 res(exchange, message);
             }
         } else {

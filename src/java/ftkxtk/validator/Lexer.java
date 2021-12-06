@@ -21,7 +21,10 @@ public final class Lexer {
             else if (match("[\n]")) {
                 chars.addLine();
                 chars.skip();
-            } else {
+            } else if (match("/","/")) {
+                while (match("[^\n]")) {}
+                chars.skip();
+            }else {
                 tokens.add(lexToken());
             }
         }

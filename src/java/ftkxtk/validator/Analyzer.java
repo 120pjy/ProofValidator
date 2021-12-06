@@ -183,19 +183,32 @@ public class Analyzer implements Ast.Visitor<Void> {
         if(refNode instanceof Ast.Expression.Variable) {
             String varName = ((Ast.Expression.Variable)refNode).getName();
             if(variables.containsKey(varName)) {
-                if(!variables.get(varName).equals(expr))
-                    throw new AnalyzeException("variable is inconsistent", currentPosition, expr);
+                if(!variables.get(varName).equals(expr)) {
+                    String message = "variable "+ varName + " is inconsistent\n";
+                    message += "expected: " + expr +"\n";
+                    message += "actual: " + variables.get(varName);
+                    throw new AnalyzeException(message, currentPosition, expr);
+                }
             } else {
                 variables.put(varName, expr);
             }
             return;
         }
 
-        if (expr.getClass() != refNode.getClass())
-            throw new AnalyzeException("Argument structure different from reasoning", currentPosition, expr);
+        if (expr.getClass() != refNode.getClass()) {
+
+            String message = "Argument structure is different from the reason structure\n";
+            message += "expected: " + expr.getClass().getName() +"\n";
+            message += "actual: " + refNode.getClass().getName();
+            throw new AnalyzeException(message, currentPosition, expr);
+        }
         if (expr instanceof Ast.Expression.Binary && refNode instanceof Ast.Expression.Binary)
-            if(!((Ast.Expression.Binary) expr).getOperator().equals(((Ast.Expression.Binary) refNode).getOperator()))
-            throw new AnalyzeException("Argument structure different", currentPosition, expr);
+            if(!((Ast.Expression.Binary) expr).getOperator().equals(((Ast.Expression.Binary) refNode).getOperator())) {
+                String message = "Argument structure is different from the reason structure\n";
+                message += "expected: " + ((Ast.Expression.Binary) expr).getOperator() + "\n";
+                message += "actual: " + ((Ast.Expression.Binary) refNode).getOperator();
+                throw new AnalyzeException(message, currentPosition, expr);
+            }
 
         if (expr instanceof Ast.Expression.Binary) {
             checkStructure(((Ast.Expression.Binary) expr).getLeft());
