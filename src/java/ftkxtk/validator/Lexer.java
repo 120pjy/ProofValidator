@@ -46,12 +46,7 @@ public final class Lexer {
 
     public Token lexNumber() {
         boolean dot = false;
-        while(match("[\\d]") || match(".", "\\d")) {
-            if (dot && chars.get(-1)=='.') {
-                return chars.emit(Token.Type.Number);
-            }
-            if (chars.has(-2) && chars.get(-2)=='.') dot = true;
-        }
+        while(match("[\\d]")) {}
         return chars.emit(Token.Type.Number);
     }
 
